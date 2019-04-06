@@ -1,0 +1,162 @@
+package App;
+
+public class Main {
+    ///////////////////////
+    // POLA OPCJI
+    //////////
+    final static int N = 6;     // LICZBA DOSTĘPNYCH PRZEDMIOTÓW
+    final static int MAXCAPACITY = 10; // MAKSYMALNA OBJĘTOŚĆ PLECAKA
+    final static int[] CAPACITY = { 6,  2,  3,  2,  3,  1 };    // TABLICA OBJĘTOŚCI POSZCZEGÓLNYCH PRZEDMIOTÓW
+    final static int[] VALUE    = { 6,  4,  5,  7, 10,  2 };    // TABLICA WARTOŚCI POSZCZEGÓLNYCH PRZEDMIOTÓW
+
+
+    ///////////////////////
+    // START APLIKACJI
+    //////////
+    public static void main(String[] args){
+        knapsackCapacity();
+        knapsackValue();
+        knapsackValueCapacity();
+        kanpsackCapacityValue();
+    }
+
+
+    private static void knapsackCapacity(){ // SORTOWANE -> NAJMNIEJSZA OBJĘTOŚĆ
+        boolean[] ANSWER = new boolean[N];  // TABLICA WSKAZUJĄCA, KTORE PRZEDMIOTY ZOSTAŁY ZABRANE
+        for (int i=0; i<N; i++) ANSWER[i] = false;  // NA POCZĄTKU PROGRAMU ŻADEN PRZEDMIOT NIE ZOSTAŁ ZABRANY (FALSE)
+
+        int SUM_VALUE = 0;  // ZMIENNA PRZECHOWUJĄCA AKTUALNĄ SUMĘ WARTOŚCI UMIESZCZANYCH PRZEDMIOTÓW
+        int SUM_CAPACITY = 0;   // ZMIENNA PRZECHOWUJĄCA AKTUALNĄ SUMĘ OBJĘTOŚCI UMIESZCZANYCH PRZEDMIOTÓW
+
+
+        while(true){ // PĘTLA NIESKOŃCZONA, DLA OSZCZĘDNOŚCI PAMIĘCI ZAMIAST ZMIENNEJ WARUNKUJĄCEJ KONIEC PĘTLI -> INSTRUKCJA break
+            int MIN_CAPACITY = Integer.MAX_VALUE; // NAJMNIEJSZY DOSTEPNY PRZEDMIOT
+            int PACKITEM = -1; // ZMIENNA POMOCNICZA, PRZERZUCA POZA PĘTLE for INDEX ROZPATRYWANEGO PRZEDMIOTU
+
+            for (int i=0; i<N; i++){ // PRZEGLĄDANIE TABLICY W POSZUKIWANIU NAJMNIEJSZYCH DOSTEPNYCH ELEMENTÓW
+                if (!ANSWER[i]){ // SPRAWDZA PRZY PRZEDMIOT NA MIEJSCU i ZOSTAŁ JUŻ ZAPAKOWANY DO PLECAKA, false - NIE ZAPAKOWANO
+                    if ( (SUM_CAPACITY + CAPACITY[i] <= MAXCAPACITY) && (CAPACITY[i] < MIN_CAPACITY) ){ // JEŚLI DANY PRZEDMIOT MOŻE ZMIEŚCIĆ SIĘ DO PLECAKA I JEDNOCZEŚNIE JEST NAJMNIEJSZY Z POZOSTAŁYCH WYKONAJ
+                        MIN_CAPACITY = CAPACITY[i]; // USTAWIA NAJMNIEJSZĄ OBJĘTOŚĆ PRZEDMIOTU NA OBJĘTOŚĆ AKTUALNEGO PRZEDMIOTU, USTALONE WCZESNIEJ, ŻE JEST ON NAJMNIEJSZY Z PULI
+                        PACKITEM = i; // PRZERZUCENIE INDEXU ROZPATRYWANEGO PRZEDMIOTU
+                    }
+                }
+            }
+
+            if (PACKITEM > -1){ // JEŚLI WARTOŚĆ ZMIENNEJ TYMCZASOWEJ packitem ZOSTAŁA ZMIENIONA, OZNACZA TO, ŻE ZNALEZIONO INDEX PRZEDMIOTU, KTÓRY MA ZOSTAĆ SPAKOWANY, ZMIENNA WTEDY PRZECHOWUJE INDEX TEGO PRZEDMIOTU
+                ANSWER[PACKITEM] = true; // ZMIANA ODPOWIEDZI DLA POJEDYNCZEGO PRZEDMIOTU, true - PAKUJEMY PRZEDMIOT
+                SUM_CAPACITY = SUM_CAPACITY + CAPACITY[PACKITEM]; // SUMOWANIE OBJĘTOŚCI Z DODAWANYM PRZEDMIOTEM
+                SUM_VALUE = SUM_VALUE + VALUE[PACKITEM]; // SUMOWANIE WARTOŚCI ZAWARTOŚCI PLECAKA Z PAKOWANYM PRZEDMIOTEM
+            } else break; // JEŚLI NIE NASTĄPIŁA ZMIANA -> WYJŚCIE Z PĘTLI
+        }
+
+        System.out.println("\n\n### OD NAJMNIEJSZYCH ###");
+        System.out.print("ZAPAKOWANE PRZEDMIOTY:\t");
+        for (int i=0; i<N; i++) if (ANSWER[i]) System.out.print(i + "\t"); // WYPISANIE INDEKSÓW PRZEDMIOTÓW, KTÓRE ZOSTAŁY OZNACZONE JAKO ZAPAKOWANE
+        System.out.println("\nŁĄCZNA WARTOŚĆ PLECAKA -> " + SUM_VALUE); // WYPISANIE ŁĄCZNEJ WARTOŚCI ZAPAKOWANYCH PRZEDMIOTÓW
+    }
+
+
+    private static void knapsackValue(){ // SORTOWANE -> NAJWIĘKSZA WARTOŚĆ
+        boolean[] ANSWER = new boolean[N]; // TABLICA WSKAZUJĄCA, KTÓRE PRZEDMIOTY ZOSTAŁY SPAKOWANE
+        for (int i=0; i<N; i++) ANSWER[i] = false; // NA POCZĄTKU ŻADEN PRZEDMIOT NIE ZOSTAŁ SPAKOWANY
+
+        int SUM_VALUE = 0; // ZMIENNA PRZECHOWUJĄCA AKTUALNĄ SUMĘ WARTOŚCI PAKOWANYCH PRZEDMIOTÓW
+        int SUM_CAPACITY = 0; // ZMIENNA PRZECHOWUJĄCA AKTUALNĄ SUMĘ OBJĘTOŚCI PAKOWANYCH PRZEDMIOTÓW
+
+        while(true){ // PĘTLA NIESKOŃCZONA, DLA OSZCZĘDNOŚCI PAMIĘCI ZAMIAST ZMIENNEJ WARUNKUJĄCEJ KONIEC PĘTLI -> INSTRUKCJA break
+
+            int MAX_VALUE = 0; // ZMIENNA PRZECHOWUJĄCA WARTOŚĆ NAJCENNIEJSZEGO Z AKTUALNIE DOSTĘPNYCH PRZEDMIOTÓW
+            int PACKITEM = -1; // ZMIENNA POMOCNICZA, PRZERZUCA INDEKS ROZPATRYWANEGO PRZEDMIOTU POZA PĘTLE
+
+            for (int i=0; i<N; i++){ // PRZEGLĄDANIE TABLICY W POSZUKIWANIU NAJCENNIEJSZEGO PRZEDMIOTU
+                if (!ANSWER[i]){ // SPRAWDZA CZY PRZEDMIOT O INDEKSIE i ZOSTAŁ JUŻ ZAPAKOWANY DO PLECAKA -> false - NIE ZAPAKOWANO
+                    if (((SUM_CAPACITY + CAPACITY[i]) <= MAXCAPACITY) && (VALUE[i] > MAX_VALUE)){ // JEŚLI DANY PRZEDMIOT ZMIEŚCI SIĘ W PLECAKU I JEGO WARTOŚĆ JEST WIĘKSZA NIŻ WARTOŚĆ POPRZEDNIO ROZPATRYWANEGO PRZEDMIOTU -> WYKONAJ
+                        MAX_VALUE = VALUE[i]; // PRZECHOWANIE PRZEDMIOTU O NAJWIĘKSZEJ WARTOŚCI Z PULI
+                        PACKITEM = i; // PRZERZUCENIE INDEKSU ROZPATRYWANEGO PRZEDMIOTU POZA PĘTLE
+                    }
+                }
+            }
+
+            if (PACKITEM > -1){ // JEŚLI ZANOTOWANO ZMIANĘ = ZNALEZIONO PRZEDMIOT DO ZAPAKOWANIA -> WYKONAJ
+                ANSWER[PACKITEM] = true; // ZMIANA ODPOWIEDZI W TABLICY -> true - PAKUJEMY PRZEDMIOT
+                SUM_VALUE = SUM_VALUE + VALUE[PACKITEM]; // SUMOWANIE WARTOŚCI PLECAKA
+                SUM_CAPACITY = SUM_CAPACITY + CAPACITY[PACKITEM]; // SUMOWANIE OBJĘTOŚCI PRZEDMIOTÓW W PLECAKU
+            } else break; // JEŚLI BRAK ZMIANY -> WYJŚCIE Z PĘTLI
+        }
+
+        System.out.println("\n\n### OD NAJCENNIEJSZYCH ###");
+        System.out.print("ZAPAKOWANE PRZEDMIOTY:\t");
+        for (int i=0; i<N; i++) if (ANSWER[i]) System.out.print(i + "\t"); // WYPISANIE INDEKSÓW PRZEDMIOTÓW, KTÓRE ZOSTAŁY OZNACZONE JAKO ZAPAKOWANE
+        System.out.println("\nŁĄCZNA WARTOŚĆ PLECAKA -> " + SUM_VALUE); // WYPISANIE ŁĄCZNEJ WARTOŚCI ZAPAKOWANYCH PRZEDMIOTÓW
+
+    }
+
+
+    private static void knapsackValueCapacity(){ // SORTOWANE PO ILORAZIE -> WARTOŚĆ/OBJĘTOŚĆ
+        boolean[] ANSWER = new boolean[N]; // TABLICA Z ODPOWIEDZIAMI, true - PAKUJEMY, false - NIE PAKUJEMY
+        for (int i=0; i<N; i++) ANSWER[i] = false; // POCZĄTKOWE WYPEŁNIANIE TABLICY -> WSZYSTKIE PRZEDMIOTY POZA PLECAKIEM
+
+        int SUM_VALUE = 0; // SUMA WARTOŚCI PAKOWANYCH PRZEDMIOTÓW
+        int SUM_CAPACITY = 0; // SUMA OBJĘTOŚCI PAKOWANYCH PRZEDMIOTÓW
+
+        while(true){ // PĘTLA NIESKOŃCZONA, ZAMIAST WARUNKU WYJŚCIA -> INSTRUKCJA BREAK
+            double MAX_VCRADIO = 0; // MAKSYMALNY STOSUNEK WARTOŚĆ/OBJĘTOŚĆ
+            int PACKITEM = -1; // ZMIENNA POMOCNICZA, PRZERZUCA INDEKS PAKOWANEGO PRZEDMIOTU POZA PĘTLE
+
+            for (int i=0; i<N; i++){ // PRZESZUKIWANIE WSZYSTKICH PRZEDMIOTÓW
+                if (!ANSWER[i]){ // JEŚLI PRZEDMIOT JEST DOSTĘPNY
+                    double VCRATIO = (double)VALUE[i]/CAPACITY[i]; // OBLICZANIE STOSUNKU WARTOŚĆ/OBJĘTOŚĆ, RZUTOWANIE NA double -> STOSUNEK NIE MUSI MIEĆ WARTOŚCI CAŁKOWITEJ
+                    if (((SUM_CAPACITY + CAPACITY[i]) <= MAXCAPACITY) && (VCRATIO > MAX_VCRADIO)){ // JEŚLI PRZEDMIOT ZMIEŚCI SIE W PLECAKU A STOSUNEK JEST WIĘKSZY OD POPRZEDNIEGO -> ZASUGERUJ SPAKOWANIE PRZEDMIOTU
+                        MAX_VCRADIO = VCRATIO; // ZASTĘPOWANIE MNIEJSZEGO STOSUNKU W/O
+                        PACKITEM = i; // SYGNAŁ -> PAKUJ PRZEDMIOT
+                    }
+                }
+            }
+
+            if (PACKITEM > -1){ // JEŚLI ZMIANA
+                ANSWER[PACKITEM] = true; // OZNACZ DO SPAKOWANIA
+                SUM_VALUE = SUM_VALUE + VALUE[PACKITEM]; // SUMOWANIE WARTOŚCI
+                SUM_CAPACITY = SUM_CAPACITY + CAPACITY[PACKITEM]; // SUMOWANIE OBJĘTOŚCI
+            }else break; // JEŚLI BRAK ZMIANY -> WYJŚCIE Z PĘTLI
+        }
+
+        System.out.println("\n\n### NAJWIĘKSZY STOSUNEK WARTOŚĆ/OBJĘTOŚĆ ###");
+        System.out.print("ZAPAKOWANE PRZEDMIOTY:\t");
+        for (int i=0; i<N; i++) if (ANSWER[i]) System.out.print(i + "\t"); // WYPISANIE INDEKSÓW PRZEDMIOTÓW, KTÓRE ZOSTAŁY OZNACZONE JAKO ZAPAKOWANE
+        System.out.println("\nŁĄCZNA WARTOŚĆ PLECAKA -> " + SUM_VALUE); // WYPISANIE ŁĄCZNEJ WARTOŚCI ZAPAKOWANYCH PRZEDMIOTÓW
+    }
+
+    private static void kanpsackCapacityValue(){
+        boolean[] ANSWER = new boolean[N]; // TABLICA Z ODPOWIEDZIAMI
+        for (int i=0; i<N; i++) ANSWER[i] = false; // POCZĄTKOWE WYPEŁNIANIE TABLICY -> WSZYSTKIE PRZEDMIOTY POZA PLECAKIEM
+
+        int SUM_VALUE = 0; // SUMA WARTOŚCI PAKOWANYCH PRZEDMIOTÓW
+        int SUM_CAPACITY = 0; // SUMA OBJĘTOŚCI PAKOWANYCH PRZEDMIOTÓW
+
+        while(true){
+            double MIN_CVRATIO = Integer.MAX_VALUE; // MINIMALNY STOSUNEK OBJĘTOŚĆ/WARTOŚĆ
+            int PACKITEM = -1; // ZMIENNA POMOCNICZA, DEFINIUJE CZY PRZEDMIOT BEDZIE PAKOWANY I KTÓRY PRZEDMIOT BĘDZIE PAKOWANY
+
+            for (int i=0; i<N; i++){ // PRZESZUKUJE WSZYSTKIE PRZEDMIOTY
+                if (!ANSWER[i]){ // JEŚLI PRZEDMIOT JEST DOSTĘPNY
+                    double CVRATIO = (double)CAPACITY[i]/VALUE[i]; // OBLICZANIE STOSUNKU OBJĘTOŚĆ/WARTOŚĆ, RZUTOWANIE NA double -> STOSUNEK NIE MUSI MIEĆ WARTOŚCI CAŁKOWITEJ
+                    if (((SUM_CAPACITY + CAPACITY[i]) <= MAXCAPACITY) && (CVRATIO < MIN_CVRATIO)){
+                        MIN_CVRATIO = CVRATIO; // ZASTĘPOWANIE WIĘKSZEGO STOSUNKU O/W
+                        PACKITEM = i; // ZASUGERUJ PAKOWANIE PRZEDMIOTU
+                    }
+                }
+            }
+
+            if (PACKITEM > -1){ // JEŚLI ZMIANA
+                ANSWER[PACKITEM] = true; // PAKUJ PRZEDMIOT
+                SUM_VALUE = SUM_VALUE + VALUE[PACKITEM]; // SUMUJ WARTOŚCI
+                SUM_CAPACITY = SUM_CAPACITY + CAPACITY[PACKITEM]; // SUMUJ OBJĘTOŚCI
+            }else break; // JEŚLI BRAK ZMIANY -> WYJDŹ Z PĘTLI
+        }
+
+        System.out.println("\n\n### NAJMNIEJSZY STOSUNEK OBJĘTOŚĆ/WARTOŚĆ ###");
+        System.out.print("ZAPAKOWANE PRZEDMIOTY:\t");
+        for (int i=0; i<N; i++) if (ANSWER[i]) System.out.print(i + "\t"); // WYPISANIE INDEKSÓW PRZEDMIOTÓW, KTÓRE ZOSTAŁY OZNACZONE JAKO ZAPAKOWANE
+        System.out.println("\nŁĄCZNA WARTOŚĆ PLECAKA -> " + SUM_VALUE); // WYPISANIE ŁĄCZNEJ WARTOŚCI ZAPAKOWANYCH PRZEDMIOTÓW
+    }
+}
